@@ -1,8 +1,29 @@
-FROM centos:7
-MAINTAINER jean <jean@localhost>
-RUN yum install -y httpd net-tools
-RUN echo "<h2>WELCOME TO THE 667 LOBBY MY G <h2>" /var/www//index.html
-EXPOSE 51
-CMD ["-D","FOREGROUND"]
-ENTRYPOINT ["/usr/sbin/httpd"]
+node {
+    def registryProjet = 'registry.gitlab.com/xavki/presentationns-jenkins'
+    def IMAGE = "${registryProjet}:version-${env.BUILD_ID}"
+    
+    stage('Clone') {
+        git 'https://github.com/Omissendy/jenkins-build-docker.git'
+    }
+    
+    def img
+    stage('Build') {
+        img = docker.build(IMAGE, '.')
+    }
+    
+    stage('Run') {
+        img.withRun("--name run-${BUILD_ID} -p 8080:80") { c ->
+            sh 'sleep 5'
+            sh 'curl -f http://localhost:8080 || (echo "Erreur: le conteneur ne répond pas !" && exit 1)'
+        }
+    }
+    
+    stage('Push') {
+        docker.withRegistry('https://registry.gitlab.com', 'reg1') {
+            img.push('latest')
+            img.push()
+        }
+    }
+}
+
 
