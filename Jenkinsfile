@@ -12,9 +12,9 @@ node {
     }
     
     stage('Run') {
-        img.withRun("--name run-${BUILD_ID} -p 8080:80") { c ->
+        img.withRun("--name run-${BUILD_ID} -p 8081:80") { c ->
             sh 'sleep 5'
-            sh 'curl -f http://localhost:8080 || (echo "Erreur: le conteneur ne répond pas !" && exit 1)'
+            sh 'curl -f http://localhost:8081 || (echo "Erreur: le conteneur ne répond pas !" && exit 1)'
         }
     }
     
