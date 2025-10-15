@@ -1,10 +1,20 @@
-FROM almalinux:8
+# Utilisation de l'image officielle Tomcat
+FROM tomcat:9.0
+
+# Auteur / mainteneur
 LABEL maintainer="jean <jean@localhost>"
-RUN dnf -y update && \
-    dnf -y install httpd net-tools curl && \
-    dnf clean all
-EXPOSE 80
-RUN echo "<h1>Bienvenue sur le serveur Apache de Jean !</h1>" > /var/www/html/index.html
-CMD ["/usr/sbin/httpd", "-D", "FOREGROUND"]
+
+# Suppression des applications par défaut de Tomcat
+RUN rm -rf /usr/local/tomcat/webapps/*
+
+# Copie du fichier WAR généré par Maven dans Tomcat
+COPY target/hello-world.war /usr/local/tomcat/webapps/ROOT.war
+
+# Exposition du port de Tomcat
+EXPOSE 8080
+
+# Lancement du serveur Tomcat
+CMD ["catalina.sh", "run"]
+
 
 
